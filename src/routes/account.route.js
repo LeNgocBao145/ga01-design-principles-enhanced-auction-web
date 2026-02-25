@@ -693,20 +693,6 @@ router.get('/auth/facebook/callback',
   }
 );
 
-// Twitter OAuth - DISABLED (Twitter API requires $100/month subscription)
-// router.get('/auth/twitter',
-//   passport.authenticate('twitter')
-// );
-
-// router.get('/auth/twitter/callback',
-//   passport.authenticate('twitter', { failureRedirect: '/account/signin' }),
-//   (req, res) => {
-//     req.session.authUser = req.user;
-//     req.session.isAuthenticated = true;
-//     res.redirect('/');
-//   }
-// );
-
 // GitHub OAuth
 router.get('/auth/github',
   passport.authenticate('github', { scope: ['user:email'] })
