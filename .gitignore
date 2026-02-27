@@ -39,6 +39,10 @@ build/Release
 
 # Dependency directories
 node_modules/
+<<<<<<< HEAD
+=======
+src/node_modules/
+>>>>>>> 2ed1922026636b9bc7a879799bc7bbcf388ee44a
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
@@ -66,6 +70,13 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
+<<<<<<< HEAD
+=======
+src/.env
+src/.env.*
+src/.env.example
+src/.env.example*
+>>>>>>> 2ed1922026636b9bc7a879799bc7bbcf388ee44a
 .env
 .env.*
 !.env.example
@@ -136,4 +147,8 @@ dist
 
 # Vite logs files
 vite.config.js.timestamp-*
+<<<<<<< HEAD
 vite.config.ts.timestamp-*
+=======
+vite.config.ts.timestamp-*
+>>>>>>> 2ed1922026636b9bc7a879799bc7bbcf388ee44a
