@@ -1,0 +1,30 @@
+<div class="col-md-12">
+  <div class="setting-card card border-0 shadow-sm p-4">
+    <div class="row align-items-center">
+      <div class="col-auto">
+        <div class="setting-icon"><i class="bi {{icon}}"></i></div>
+      </div>
+      <div class="col">
+        <h6 class="fw-bold mb-2 text-dark">{{title}}</h6>
+        <p class="text-muted small mb-3">{{description}}</p>
+        <div class="input-group input-group-lg">
+          <span class="input-group-text"><i class="bi {{inputIcon}} me-2"></i>
+            {{inputText}}</span>
+          <input
+            type="number"
+            class="form-control"
+            id="{{inputId}}"
+            name="{{inputName}}"
+            value="{{value}}"
+            min="1"
+            max="{{max}}"
+            required
+          />
+          <span class="input-group-text">minutes</span>
+        </div>
+        <div class="form-text mt-2"><i class="bi bi-info-circle me-1"></i>
+          {{hint}}</div>
+      </div>
+    </div>
+  </div>
+</div>

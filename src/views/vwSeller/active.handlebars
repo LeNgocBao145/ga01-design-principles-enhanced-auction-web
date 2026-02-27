@@ -1,3 +1,4 @@
+
 {{#section 'css'}}
 <!-- Quill CSS -->
 <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
@@ -30,9 +31,19 @@
 {{/section}}
 
 {{#section 'js'}}
+
 <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    const showSuccessAlert = (message, callback) => {
+    Swal.fire({
+        icon: 'success', title: 'Success!', text: message, timer: 1500, showConfirmButton: false
+    }).then(() => { if(callback) callback(); });
+    };
+
+    const showErrorAlert = (message) => {
+        Swal.fire({ icon: 'error', title: 'Error!', text: message });
+    };
     let quillEditor;
     let quillEditors = {}; // Store multiple editors for edit mode
     let currentProductId = null;
@@ -198,24 +209,14 @@
             data: JSON.stringify({ content: content }),
             success: function(response) {
                 console.log('Save successful:', response);
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: response.message || 'Updated successfully.',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+                showSuccessAlert(response.message || 'Updated successfully.');
                 // Re-enable button after successful save
                 $btn.prop('disabled', false);
                 $btn.html(originalHTML);
             },
             error: function(xhr) {
                 console.error('Save failed:', xhr);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: xhr.responseJSON?.message || 'Failed to save update.'
-                });
+                showErrorAlert(xhr.responseJSON?.message || 'Failed to save update.');
                 // Re-enable button on error
                 $btn.prop('disabled', false);
                 $btn.html(originalHTML);
@@ -272,11 +273,7 @@
                         });
                     },
                     error: function(xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: xhr.responseJSON?.message || 'Failed to delete update.'
-                        });
+                        showErrorAlert(xhr.responseJSON?.message || 'Failed to delete update');
                     }
                 });
             }
@@ -327,13 +324,8 @@
                 description: description
             }),
             success: function(response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: response.message || 'Description appended successfully.',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+                
+                showSuccessAlert(response.message || 'Description appended successfully.');
                 $('#appendDescModal').modal('hide');
                 // Reset button state
                 $btn.prop('disabled', false);
@@ -341,11 +333,7 @@
             },
             error: function(xhr) {
                 const errorMessage = xhr.responseJSON?.message || 'Failed to append description.';
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error!',
-                    text: errorMessage
-                });
+                showErrorAlert(errorMessage);
                 // Re-enable button on error
                 $btn.prop('disabled', false);
                 $btn.html(originalHTML);

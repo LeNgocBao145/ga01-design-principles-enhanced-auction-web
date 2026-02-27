@@ -12,19 +12,7 @@
 
         <!-- CONTENT -->
         <div class="col-md-9">
-            {{#if success_message}}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i>{{success_message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {{/if}}
-
-            {{#if error_message}}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{error_message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {{/if}}
+           {{> flash-messages}}
 
             <!-- Product Information Card -->
             <div class="card shadow-sm border-0">

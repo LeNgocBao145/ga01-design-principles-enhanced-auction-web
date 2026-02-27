@@ -977,21 +977,7 @@
 
 <div class="container mb-5">
   <!-- Flash Messages -->
-  {{#if success_message}}
-  <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-    <i class="bi bi-check-circle-fill me-2"></i>
-    <strong>Success!</strong> {{success_message}}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {{/if}}
-
-  {{#if error_message}}
-  <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-    <strong>Error!</strong> {{error_message}}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {{/if}}
+  {{> flash-messages}}
 
   <!-- Breadcrumb Navigation -->
   <nav aria-label="breadcrumb" class="mb-4">

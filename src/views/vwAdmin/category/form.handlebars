@@ -1,0 +1,135 @@
+{{#section 'css'}}
+
+{{#if category}}
+<link rel="stylesheet" href="/static/css/admin/category/edit.css">
+{{/if}}
+<link rel="stylesheet" href="/static/css/admin/admin-global.css">
+{{/section}}
+
+{{#section 'js'}}
+<script>
+    $(document).ready(function() {
+     
+        $('#formAddCategory, #formEditCategory').on('submit', function(e) {
+            const name = $('#txtName').val().trim();
+            
+            if (!name) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Category name is required!'
+                });
+                return false;
+            }
+        });
+    });
+</script>
+{{/section}}
+
+<div class="container-fluid mt-4 mb-5">
+  <div class="row">
+    
+    <div class="col-md-3 mb-4">
+        {{> admin-sidebar activeSection='categories'}}
+    </div>
+
+    <div class="col-md-9">
+      <div class="card shadow-sm border-0">
+        
+        <div class="card-header bg-white border-bottom py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-danger">
+                {{#if category}}
+                    <i class="bi bi-pencil-square me-2"></i> EDIT CATEGORY
+                {{else}}
+                    <i class="bi bi-plus-circle-fill me-2"></i> ADD NEW CATEGORY
+                {{/if}}
+            </h5>
+          </div>
+        </div>
+        
+        <div class="card-body p-4">
+          {{!-- Đã lược bỏ Flash Message vì Layout tổng lo --}}
+
+          <form id="formCategory" method="POST" action="/admin/categories/{{#if category}}edit{{else}}add{{/if}}">
+            
+            {{#if category}}
+            <input type="hidden" name="id" value="{{category.id}}">
+            <div class="mb-4">
+              <label class="form-label fw-bold text-muted">
+                  <i class="bi bi-hash me-1"></i> Category ID
+              </label>
+              <input type="text" class="form-control form-control-lg bg-light" value="#{{category.id}}" disabled>
+            </div>
+            {{/if}}
+
+            <div class="mb-4">
+              <label for="txtName" class="form-label fw-bold">
+                  <i class="bi bi-tag me-1"></i> Category Name <span class="text-danger">*</span>
+              </label>
+              <input type="text" class="form-control form-control-lg" id="txtName" name="name" 
+                     value="{{category.name}}" placeholder="Enter category name" required>
+              <div class="form-text">Enter a unique and descriptive name for the category.</div>
+            </div>
+
+            {{#if category}}
+            {{!-- TRƯỜNG HỢP: ĐANG EDIT --}}
+            
+            {{#if category.parent_id}}
+                {{!-- Edit danh mục Level 2 (Có cha) --}}
+                <div class="mb-4">
+                    <label for="selParent" class="form-label fw-bold">
+                        <i class="bi bi-diagram-3 me-1"></i> Parent Category
+                    </label>
+                    <select class="form-select form-select-lg" id="selParent" name="parent_id">
+                        {{#each parentCategories}}
+                        <option value="{{id}}" {{#if (eq id ../category.parent_id)}}selected{{/if}}>
+                            {{name}}
+                        </option>
+                        {{/each}}
+                    </select>
+                </div>
+            {{else}}
+                {{!-- Edit danh mục Level 1 (Không có cha) --}}
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-muted">
+                        <i class="bi bi-diagram-3 me-1"></i> Parent Category
+                    </label>
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i> This is a <strong>Level 1 (Main Category)</strong>. Level 1 categories cannot have a parent category.
+                    </div>
+                </div>
+            {{/if}}
+
+        {{else}}
+            {{!-- TRƯỜNG HỢP: ĐANG ADD MỚI --}}
+            <div class="mb-4">
+                <label for="selParent" class="form-label fw-bold">
+                    <i class="bi bi-diagram-3 me-1"></i> Parent Category
+                </label>
+                <select class="form-select form-select-lg" id="selParent" name="parent_id">
+                    <option value="">— None (Level 1 Category) —</option>
+                    {{#each parentCategories}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/each}}
+                </select>
+                <div class="form-text">Choose a parent category.</div>
+            </div>
+        {{/if}}
+
+            <div class="d-flex gap-2 mt-4 pt-3 border-top">
+              <button type="submit" class="btn btn-lg px-5 btn-admin-primary">
+                  <i class="bi bi-check-circle me-2"></i>
+                  {{#if category}}Update{{else}}Create{{/if}} Category
+              </button>
+              <a href="/admin/categories/list" class="btn btn-outline-secondary btn-lg px-4 btn-admin-secondary">
+                  <i class="bi bi-x-circle me-2"></i>Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

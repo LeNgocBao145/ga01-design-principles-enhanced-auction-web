@@ -43,17 +43,7 @@
         </div>
 
         {{!-- Global messages from controller --}}
-        {{#if error_message}}
-        <div class="alert alert-danger">
-          {{error_message}}
-        </div>
-        {{/if}}
-
-        {{#if success_message}}
-        <div class="alert alert-success">
-          {{success_message}}
-        </div>
-        {{/if}}
+        {{> flash-messages}}
 
         <form method="post" action="/account/signin" id="formSignin">
           <!-- Email -->

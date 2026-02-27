@@ -1,0 +1,13 @@
+{
+  "threshold": 10,
+  "reporters": ["console"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/public/**"
+  ],
+  "minLines": 5,
+  "minTokens": 50
+}

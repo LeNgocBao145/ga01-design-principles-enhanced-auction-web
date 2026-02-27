@@ -42,33 +42,9 @@
         <!-- Statistics -->
         <div class="col-lg-8">
           <div class="row h-100">
-            <div class="col-md-4 mb-3 mb-md-0">
-              <div class="stat-card text-center">
-                <div class="stat-icon purple mx-auto">
-                  <i class="bi bi-chat-dots-fill"></i>
-                </div>
-                <h3 class="fw-bold mb-1">{{totalReviews}}</h3>
-                <small class="text-muted">Total Reviews</small>
-              </div>
-            </div>
-            <div class="col-md-4 mb-3 mb-md-0">
-              <div class="stat-card text-center">
-                <div class="stat-icon green mx-auto">
-                  <i class="bi bi-hand-thumbs-up-fill"></i>
-                </div>
-                <h3 class="fw-bold mb-1">{{positiveReviews}}</h3>
-                <small class="text-muted">Positive</small>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="stat-card text-center">
-                <div class="stat-icon red mx-auto">
-                  <i class="bi bi-hand-thumbs-down-fill"></i>
-                </div>
-                <h3 class="fw-bold mb-1">{{negativeReviews}}</h3>
-                <small class="text-muted">Negative</small>
-              </div>
-            </div>
+           {{> account/rating-stat color="purple" icon="bi-chat-dots-fill" value=totalReviews title="Total Reviews"}}
+            {{> account/rating-stat color="green" icon="bi-hand-thumbs-up-fill" value=positiveReviews title="Positive"}}
+            {{> account/rating-stat color="red" icon="bi-hand-thumbs-down-fill" value=negativeReviews title="Negative"}}
           </div>
         </div>
       </div>
