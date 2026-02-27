@@ -11,7 +11,6 @@ import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import passport from "./utils/passport.js";
 
-// Import Scheduled Jobs
 import { startAuctionEndNotifier } from "./scripts/auctionEndNotifier.js";
 
 // Import Routes
@@ -24,7 +23,7 @@ import adminAccountRouter from "./routes/admin/account.route.js";
 import adminProductRouter from "./routes/admin/product.route.js";
 import adminSystemRouter from "./routes/admin/system.route.js";
 import sellerRouter from "./routes/seller.route.js";
-// Import Middlewares
+// Import MiddlewaresS
 import { isAuthenticated, isSeller, isAdmin } from "./middlewares/auth.mdw.js";
 import * as categoryModel from "./models/category.model.js";
 import * as userModel from "./models/user.model.js";
@@ -33,6 +32,8 @@ import * as mathHelpers from "./helpers/math.helper.js";
 import * as stringHelpers from "./helpers/string.helper.js";
 import * as dateHelpers from "./helpers/date.helper.js";
 import * as utilHelpers from "./helpers/util.helper.js";
+
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -94,9 +95,7 @@ if (!fs.existsSync(uploadDir)) {
 // File filter (chỉ cho phép ảnh)
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp/;
-  const extname = allowedTypes.test(
-    path.extname(file.originalname).toLowerCase(),
-  );
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
   if (mimetype && extname) {
@@ -181,6 +180,7 @@ app.use("/admin", function (req, res, next) {
 //     }
 //     next();
 // });
+
 
 // ============================================================
 // 5. ROUTES

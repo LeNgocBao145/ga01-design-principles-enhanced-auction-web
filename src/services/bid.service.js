@@ -80,6 +80,7 @@ class BidService {
       : null;
     let buyNowTriggered = false;
 
+    const minIncrement = parseFloat(product.step_price);
     if (
       buyNowPrice &&
       product.highest_bidder_id &&

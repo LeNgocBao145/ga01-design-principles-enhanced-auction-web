@@ -1,0 +1,188 @@
+{{#section 'css'}}
+<link rel="stylesheet" href="/static/css/admin/admin-global.css">
+<style>
+  .btn-admin-warning { transition: all 0.3s ease; }
+  .btn-admin-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+  }
+</style>
+{{/section}}
+
+{{#section 'js'}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        // Validation chung cho cả Add và Edit
+        $('#formUser').on('submit', function(e) {
+            const fullname = $('#txtFullname').val().trim();
+            const email = $('#txtEmail').val().trim();
+            const address = $('#txtAddress').val().trim();
+            
+            // Lấy giá trị password (nếu có tồn tại trên DOM tức là đang ở form Add)
+            const password = $('#txtPassword').length ? $('#txtPassword').val() : 'valid';
+            const confirmPassword = $('#txtConfirmPassword').length ? $('#txtConfirmPassword').val() : 'valid';
+            
+            if (!fullname || !email || !address || !password || !confirmPassword) {
+                e.preventDefault();
+                Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please fill in all required fields!' });
+                return false;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                Swal.fire({ icon: 'error', title: 'Invalid Email', text: 'Please enter a valid email address!' });
+                return false;
+            }
+
+            // Chỉ check match password nếu đang ở form Add
+            if ($('#txtPassword').length && password !== confirmPassword) {
+                e.preventDefault();
+                Swal.fire({ icon: 'error', title: 'Password Mismatch', text: 'Password and Confirm Password do not match!' });
+                return false;
+            }
+        });
+
+        // Xử lý nút Reset Password (Chỉ xuất hiện ở form Edit)
+        $('#btnResetPassword').on('click', function(e) {
+            e.preventDefault();
+            const userName = $(this).data('user-name');
+            
+            Swal.fire({
+                title: 'Reset Password?',
+                html: `Are you sure you want to reset password for <strong>${userName}</strong>?<br><small class="text-muted">Default password: <code>123</code></small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, reset it!'
+            }).then((result) => {
+                if (result.isConfirmed) $('#formResetPassword').submit();
+            });
+        });
+    });
+</script>
+{{/section}}
+
+<div class="container-fluid mt-4 mb-5">
+  <div class="row">
+    
+    <div class="col-md-3 mb-4">
+        {{> admin-sidebar activeSection='users'}}
+    </div>
+
+    <div class="col-md-9">
+      <div class="card shadow-sm border-0">
+        
+        <div class="card-header bg-white border-bottom py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-danger">
+                {{#if user}}
+                    <i class="bi bi-pencil-square me-2"></i> EDIT USER
+                {{else}}
+                    <i class="bi bi-plus-circle-fill me-2"></i> ADD NEW USER
+                {{/if}}
+            </h5>
+          </div>
+        </div>
+        
+        <div class="card-body p-4">
+          <form id="formUser" method="POST" action="/admin/users/{{#if user}}edit{{else}}add{{/if}}">
+            
+            {{#if user}}
+            <input type="hidden" name="id" value="{{user.id}}">
+            <div class="mb-4 text-center">
+              <img src="https://ui-avatars.com/api/?name={{user.fullname}}&size=100&background=random" class="rounded-circle shadow mb-3" width="100" height="100">
+              <div class="text-muted small">User ID: #{{user.id}}</div>
+            </div>
+            {{/if}}
+
+            <div class="row">
+              <div class="col-md-6 mb-4">
+                <label for="txtFullname" class="form-label fw-bold"><i class="bi bi-person me-1"></i> Full Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="txtFullname" name="fullname" value="{{user.fullname}}" placeholder="Enter full name" required>
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <label for="txtEmail" class="form-label fw-bold"><i class="bi bi-envelope me-1"></i> Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="txtEmail" name="email" value="{{user.email}}" placeholder="Enter email" required>
+              </div>
+
+              <div class="col-12 mb-4">
+                <label for="txtAddress" class="form-label fw-bold"><i class="bi bi-geo-alt me-1"></i> Address <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="txtAddress" name="address" value="{{user.address}}" placeholder="Enter address" required>
+              </div>
+
+              {{#unless user}}
+              <div class="col-md-6 mb-4">
+                <label for="txtPassword" class="form-label fw-bold"><i class="bi bi-lock me-1"></i> Password <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="txtPassword" name="password" placeholder="Enter password" required>
+              </div>
+              <div class="col-md-6 mb-4">
+                <label for="txtConfirmPassword" class="form-label fw-bold"><i class="bi bi-lock-fill me-1"></i> Confirm Password <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="txtConfirmPassword" name="confirm_password" placeholder="Re-enter password" required>
+              </div>
+              {{/unless}}
+
+              <div class="col-md-6 mb-4">
+                <label for="txtDOB" class="form-label fw-bold"><i class="bi bi-calendar me-1"></i> Date of Birth</label>
+                <input type="date" class="form-control" id="txtDOB" name="date_of_birth" value="{{#if user}}{{format_date_input user.date_of_birth}}{{/if}}">
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <label for="selRole" class="form-label fw-bold"><i class="bi bi-shield me-1"></i> Role <span class="text-danger">*</span></label>
+                <select class="form-select" id="selRole" name="role" required>
+                    <option value="bidder" {{#if (eq user.role 'bidder')}}selected{{/if}}>Bidder</option>
+                    <option value="seller" {{#if (eq user.role 'seller')}}selected{{/if}}>Seller</option>
+                    <option value="admin" {{#if (eq user.role 'admin')}}selected{{/if}}>Admin</option>
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <label class="form-label fw-bold d-block"><i class="bi bi-envelope-check me-1"></i> Email Verification</label>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="chkEmailVerified" name="email_verified" value="true" {{#if user.email_verified}}checked{{/if}}>
+                  <label class="form-check-label" for="chkEmailVerified">Email Verified</label>
+                </div>
+              </div>
+            </div>
+
+            {{#if user}}
+            <div class="alert alert-light border">
+              <div class="row small">
+                <div class="col-md-6"><strong><i class="bi bi-clock-history me-1"></i> Created:</strong> {{format_date user.created_at}}</div>
+                <div class="col-md-6"><strong><i class="bi bi-clock me-1"></i> Updated:</strong> {{format_date user.updated_at}}</div>
+              </div>
+            </div>
+            {{/if}}
+
+            <div class="d-flex gap-2 mt-4 pt-4 border-top">
+              <button type="submit" class="btn btn-lg px-5 btn-admin-primary">
+                  <i class="bi bi-check-circle me-2"></i>{{#if user}}Update{{else}}Create{{/if}} User
+              </button>
+              
+              {{#if user}}
+              <button type="button" id="btnResetPassword" class="btn btn-warning btn-lg px-4 btn-admin-warning" data-user-name="{{user.fullname}}">
+                  <i class="bi bi-key me-2"></i>Reset Password
+              </button>
+              {{/if}}
+              
+              <a href="/admin/users/list" class="btn btn-outline-secondary btn-lg px-4 btn-admin-secondary">
+                  <i class="bi bi-x-circle me-2"></i>Cancel
+              </a>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{#if user}}
+{{!-- Form ẩn để reset password --}}
+<form id="formResetPassword" method="POST" action="/admin/users/reset-password" style="display: none;">
+    <input type="hidden" name="id" value="{{user.id}}">
+</form>
+{{/if}}

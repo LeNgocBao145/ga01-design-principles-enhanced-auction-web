@@ -54,19 +54,7 @@
         <div class="card-body p-0">
             
             {{!-- Hiển thị thông báo thành công nếu có --}}
-            {{#if success_message}}
-            <div class="alert alert-success m-3 alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i> {{success_message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {{/if}}
-            {{!-- Hiển thị thông báo lỗi nếu có --}}
-            {{#if error_message}}
-            <div class="alert alert-danger m-3 alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i> {{error_message}}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {{/if}}
+           {{> flash-messages}}
 
             {{!-- Kiểm tra nếu không có danh mục nào --}}
 

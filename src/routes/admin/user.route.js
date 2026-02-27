@@ -3,10 +3,11 @@ import bcrypt from 'bcryptjs';
 import * as upgradeRequestModel from '../../models/upgradeRequest.model.js';
 import * as userModel from '../../models/user.model.js';
 import mailService from '../../services/mail.service.js';
+import { catchAsync } from "../../utils/catchAsync.js";
+
 const router = express.Router();
 
-
-router.get('/list', async (req, res) => {
+router.get('/list', catchAsync(async (req, res) => {
     const users = await userModel.loadAllUsers();
     const success_message = req.session.success_message;
     const error_message = req.session.error_message;
@@ -20,43 +21,40 @@ router.get('/list', async (req, res) => {
         success_message,
         error_message
     });
-});
+}));
 
-router.get('/detail/:id', async (req, res) => {
+router.get('/detail/:id', catchAsync(async (req, res) => {
     const id = req.params.id;
     const user = await userModel.findById(id);
     res.render('vwAdmin/users/detail', { user });
-});
+}));
 
-router.get('/add', async (req, res) => {
+// Route này không có async/await nên không cần bọc catchAsync
+router.get('/add', (req, res) => {
     res.render('vwAdmin/users/add');
 });
-router.post('/add', async (req, res) => {
-    try {
-        const { fullname, email, address, date_of_birth, role, email_verified, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = {
-            fullname,
-            email,
-            address,
-            date_of_birth: date_of_birth || null,
-            role,
-            email_verified: email_verified === 'true',
-            password_hash: hashedPassword,
-            created_at: new Date(),
-            updated_at: new Date()
-        };
-        
-        await userModel.add(newUser);
-        req.session.success_message = 'User added successfully!';
-        res.redirect('/admin/users/list');
-    } catch (error) {
-        console.error('Add user error:', error);
-        req.session.error_message = 'Failed to add user. Please try again.';
-        res.redirect('/admin/users/add');
-    }
-});
-router.get('/edit/:id', async (req, res) => {
+
+router.post('/add', catchAsync(async (req, res) => {
+    const { fullname, email, address, date_of_birth, role, email_verified, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = {
+        fullname,
+        email,
+        address,
+        date_of_birth: date_of_birth || null,
+        role,
+        email_verified: email_verified === 'true',
+        password_hash: hashedPassword,
+        created_at: new Date(),
+        updated_at: new Date()
+    };
+    
+    await userModel.add(newUser);
+    req.session.success_message = 'User added successfully!';
+    res.redirect('/admin/users/list');
+}, '/admin/users/add', 'Failed to add user. Please try again.'));
+
+router.get('/edit/:id', catchAsync(async (req, res) => {
     const id = req.params.id;
     const user = await userModel.findById(id);
     const error_message = req.session.error_message;
@@ -64,8 +62,9 @@ router.get('/edit/:id', async (req, res) => {
     delete req.session.error_message;
     
     res.render('vwAdmin/users/edit', { user, error_message });
-});
+}));
 
+// Giữ nguyên try...catch cho edit vì URL redirect khi lỗi chứa tham số động (req.body.id)
 router.post('/edit', async (req, res) => {
     try {
         const { id, fullname, email, address, date_of_birth, role, email_verified } = req.body;
@@ -90,56 +89,46 @@ router.post('/edit', async (req, res) => {
     }
 });
 
-router.post('/reset-password', async (req, res) => {
-    try {
-        const { id } = req.body;
-        const defaultPassword = '123';
-        const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-        
-        // Get user info to send email
-        const user = await userModel.findById(id);
-        
-        await userModel.update(id, { 
-            password_hash: hashedPassword,
-            updated_at: new Date()
-        });
-        
-        // Send email notification to user
-        if (user && user.email) {
-            try {
-                await mailService.sendResetPasswordAdminMail(user.email, user.fullname, defaultPassword)
-                console.log(`Password reset email sent to ${user.email}`);
-            } catch (emailError) {
-                console.error('Failed to send password reset email:', emailError);
-                // Continue even if email fails - password is still reset
-            }
+router.post('/reset-password', catchAsync(async (req, res) => {
+    const { id } = req.body;
+    const defaultPassword = '123';
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+    
+    // Get user info to send email
+    const user = await userModel.findById(id);
+    
+    await userModel.update(id, { 
+        password_hash: hashedPassword,
+        updated_at: new Date()
+    });
+    
+    // Send email notification to user
+    if (user && user.email) {
+        try {
+            await mailService.sendResetPasswordAdminMail(user.email, user.fullname, defaultPassword);
+            console.log(`Password reset email sent to ${user.email}`);
+        } catch (emailError) {
+            console.error('Failed to send password reset email:', emailError);
+            // Continue even if email fails - password is still reset
         }
-        
-        req.session.success_message = `Password of ${user.fullname} reset successfully to default: 123`;
-        res.redirect(`/admin/users/list`);
-    } catch (error) {
-        console.error('Reset password error:', error);
-        req.session.error_message = 'Failed to reset password. Please try again.';
-        res.redirect(`/admin/users/list`);
     }
-});
+    
+    req.session.success_message = `Password of ${user.fullname} reset successfully to default: 123`;
+    res.redirect(`/admin/users/list`);
+}, '/admin/users/list', 'Failed to reset password.'));
 
-router.post('/delete', async (req, res) => {
-    try {
-        const { id } = req.body;
-        await userModel.deleteUser(id);
-        req.session.success_message = 'User deleted successfully!';
-        res.redirect('/admin/users/list');
-    } catch (error) {
-        console.error('Delete user error:', error);
-        req.session.error_message = 'Failed to delete user. Please try again.';
-        res.redirect('/admin/users/list');
-    }
-});
+router.post('/delete', catchAsync(async (req, res) => {
+    const { id } = req.body;
+    await userModel.deleteUser(id);
+    req.session.success_message = 'User deleted successfully!';
+    res.redirect('/admin/users/list');
+}, '/admin/users/list', 'Failed to delete user. Please try again.'));
+
 router.get('/upgrade-requests', async (req, res) => {
     const requests = await upgradeRequestModel.loadAllUpgradeRequests();
     res.render('vwAdmin/users/upgradeRequests', { requests });
 });
+
 router.post('/upgrade/approve', async (req, res) => {
     const id = req.body.id;
     const bidderId = req.body.bidder_id;
@@ -148,6 +137,7 @@ router.post('/upgrade/approve', async (req, res) => {
     await userModel.updateUserRoleToSeller(bidderId);
     res.redirect('/admin/users/upgrade-requests');
 });
+
 router.post('/upgrade/reject', async (req, res) => {
     const id = req.body.id;
     const admin_note = req.body.admin_note;
@@ -155,4 +145,5 @@ router.post('/upgrade/reject', async (req, res) => {
     // Logic to reject the upgrade request
     res.redirect('/admin/users/upgrade-requests');
 });
+
 export default router;

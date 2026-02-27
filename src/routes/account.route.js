@@ -36,7 +36,6 @@ router.get("/ratings", isAuthenticated, async (req, res) => {
     negativeReviews,
   });
 });
-
 // GET /signup
 router.get("/signup", function (req, res) {
   // CẬP NHẬT: Truyền Site Key xuống view để hiển thị widget
@@ -83,7 +82,6 @@ router.post("/forgot-password", async (req, res) => {
     email,
   });
 });
-
 router.post("/verify-forgot-password-otp", async (req, res) => {
   const { email, otp } = req.body;
   const user = await userModel.findByEmail(email);
@@ -140,7 +138,6 @@ router.post("/reset-password", async (req, res) => {
     success_message: "Your password has been reset. You can sign in now.",
   });
 });
-
 // POST /signin
 router.post("/signin", async function (req, res) {
   const { email, password } = req.body;
@@ -309,13 +306,13 @@ router.get("/profile", isAuthenticated, async (req, res) => {
       success_message = "Your upgrade request has been sent successfully.";
     }
     // 2. Render và truyền biến success_message xuống view
-    res.render("vwAccount/profile", {
+    res.render("shared/profile", {
       user: user,
       success_message: success_message, // Nếu null thì HBS sẽ không hiện
     });
   } catch (err) {
     console.error(err);
-    res.render("vwAccount/profile", {
+    res.render("shared/profile", {
       user: req.session.authUser,
       err_message: "Unable to load profile information.",
     });
@@ -346,7 +343,7 @@ router.put("/profile", isAuthenticated, async (req, res) => {
         !old_password ||
         !bcrypt.compareSync(old_password, currentUser.password_hash)
       ) {
-        return res.render("vwAccount/profile", {
+        return res.render("shared/profile", {
           user: currentUser,
           err_message: "Password is incorrect!",
         });
@@ -357,7 +354,7 @@ router.put("/profile", isAuthenticated, async (req, res) => {
     if (email !== currentUser.email) {
       const existingUser = await userModel.findByEmail(email);
       if (existingUser) {
-        return res.render("vwAccount/profile", {
+        return res.render("shared/profile", {
           user: currentUser,
           err_message: "Email is already in use by another user.",
         });
@@ -367,7 +364,7 @@ router.put("/profile", isAuthenticated, async (req, res) => {
     // 4. KIỂM TRA MẬT KHẨU MỚI (Chỉ cho non-OAuth users)
     if (!currentUser.oauth_provider && new_password) {
       if (new_password !== confirm_new_password) {
-        return res.render("vwAccount/profile", {
+        return res.render("shared/profile", {
           user: currentUser,
           err_message: "New passwords do not match.",
         });
@@ -405,7 +402,7 @@ router.put("/profile", isAuthenticated, async (req, res) => {
     return res.redirect("/account/profile?success=true");
   } catch (err) {
     console.error(err);
-    return res.render("vwAccount/profile", {
+    return res.render("shared/profile", {
       user: req.session.authUser,
       err_message: "System error. Please try again later.",
     });
@@ -429,7 +426,7 @@ router.post("/request-upgrade", isAuthenticated, async (req, res) => {
     return res.redirect("/account/profile?send-request-upgrade=true");
   } catch (err) {
     console.error(err);
-    res.render("vwAccount/profile", {
+    res.render("shared/profile", {
       user: req.session.authUser,
       err_message:
         "Unable to submit your request at this time. Please try again later.",
