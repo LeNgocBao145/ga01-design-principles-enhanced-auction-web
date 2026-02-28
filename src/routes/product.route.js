@@ -418,7 +418,8 @@ router.get("/bid-history/:productId", async (req, res) => {
   res.render("vwProduct/details", { product });
 });
 
-// ROUTE: COMPLETE ORDER PAGE (For PENDING products)
+// // ROUTE: COMPLETE ORDER PAGE (For PENDING products
+
 router.get("/complete-order", isAuthenticated, async (req, res) => {
   const userId = req.session.authUser.id;
   const productId = req.query.id;
@@ -427,15 +428,29 @@ router.get("/complete-order", isAuthenticated, async (req, res) => {
     return res.redirect("/");
   }
 
-  const productData = await productService.getProductWithStatus(
-    productId,
-    userId,
-  );
+  const product = await productModel.findByProductId2(productId, userId);
 
-  if (!productData) {
+  if (!product) {
     return res.status(404).render("404", { message: "Product not found" });
   }
-  const { product, productStatus } = productData;
+
+  // Determine product status
+  const now = new Date();
+  const endDate = new Date(product.end_at);
+  let productStatus = "ACTIVE";
+
+  if (product.is_sold === true) {
+    productStatus = "SOLD";
+  } else if (product.is_sold === false) {
+    productStatus = "CANCELLED";
+  } else if (
+    (endDate <= now || product.closed_at) &&
+    product.highest_bidder_id
+  ) {
+    productStatus = "PENDING";
+  } else if (endDate <= now && !product.highest_bidder_id) {
+    productStatus = "EXPIRED";
+  }
 
   // Only PENDING products can access this page
   if (productStatus !== "PENDING") {
@@ -447,9 +462,11 @@ router.get("/complete-order", isAuthenticated, async (req, res) => {
   const isHighestBidder = product.highest_bidder_id === userId;
 
   if (!isSeller && !isHighestBidder) {
-    return res.status(403).render("403", {
-      message: "You do not have permission to access this page",
-    });
+    return res
+      .status(403)
+      .render("403", {
+        message: "You do not have permission to access this page",
+      });
   }
 
   // Fetch or create order
